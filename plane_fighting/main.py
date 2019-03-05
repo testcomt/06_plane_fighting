@@ -91,6 +91,18 @@ def game_initial()->tuple:
     return background_image, hero, screen
 
 
+def hero_moving(bkg, hero, screen, hero_rect):
+    """hero moving from initial location upwards, and back to bottom, recursively"""
+
+    if hero_rect.y + hero_rect.height <= 0:
+        hero_rect.y = SCREEN_HEIGHT
+    # TODO-1: what else can be done, if not redrawing a bkg screen?
+    # Is current way waste of resources?
+    screen.blit(bkg, (0, 0))
+    screen.blit(hero, hero_rect)
+    pygame.display.update()
+
+
 def main()->None:
     """main program"""
 
@@ -100,6 +112,7 @@ def main()->None:
     (bkg, hero, screen) = game_initial()
 
     clock = pygame.time.Clock()
+
     hero_rect = pygame.Rect(HERO_INIT_X, HERO_INIT_Y, HERO_WIDTH, HERO_HEIGHT)
 
     while True:
@@ -107,15 +120,7 @@ def main()->None:
 
         hero_rect.y -= MOVING_STEP_OF_HERO
 
-        if hero_rect.y + hero_rect.height <= 0:
-            hero_rect.y = SCREEN_HEIGHT
-
-        # TODO-1: what else can be done, if not redrawing a bkg screen?
-        # Is current way waste of resources?
-        screen.blit(bkg, (0, 0))
-
-        screen.blit(hero, hero_rect)
-        pygame.display.update()
+        hero_moving(bkg, hero, screen, hero_rect)
 
         # monitor events
         for event in pygame.event.get():
