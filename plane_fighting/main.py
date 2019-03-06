@@ -67,11 +67,14 @@ FRAME_FREQ = 60
 
 g_screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 g_Background = plane_sprites.GameSprites("./images/background.png", 0)
-g_Hero = plane_sprites.GameSprites("./images/me1.png")
+g_Hero = plane_sprites.GameSprites("./images/me1.png", -1)
+g_enemies = [plane_sprites.GameSprites("./images/enemy1.png"),
+             plane_sprites.GameSprites("./images/enemy1.png", 2)]
+g_ObjectGroup = pygame.sprite.Group(g_Background, g_Hero, g_enemies)
 
 
 def game_initial()->None:
-    """initialization: prepare screen, images
+    """set initail locations of each object
     R in RIMGEN - Iterations can be multiple ways:
                   step by step of a procedure;
                   from static image, to active action,
@@ -80,29 +83,51 @@ def game_initial()->None:
 
     """
 
-    # draw screen update display
-    g_screen.blit(g_Background.image, (0, 0))
-    g_screen.blit(g_Hero.image, (HERO_INIT_X, HERO_INIT_Y))
-    pygame.display.update()
+    # These lines not needed any more, when putting bkg and hero into g_ObjectGroup
+    # draw objects: background and hero,  update display
+    # g_screen.blit(g_Background.image, (0, 0))
+    # g_screen.blit(g_Hero.image, (HERO_INIT_X, HERO_INIT_Y))
+    # pygame.display.update()
 
     # set initail location: two ways of coding
     # g_Hero.rect = g_Hero.image.get_rect(center=(HERO_INIT_X, HERO_INIT_Y))
     g_Hero.rect.centerx = HERO_INIT_X
     g_Hero.rect.centery = HERO_INIT_Y
 
-    return
+
+def hero_loc_update():
+    """update locations of hero if out of screen"""
+
+    if g_Hero.rect.centery + g_Hero.image.get_height() // 2 <= 0:
+        g_Hero.rect.centery = SCREEN_HEIGHT + g_Hero.image.get_height() // 2
 
 
-def hero_moving()->None:
+def enemy_loc_update():
+    """update locations of each enemy in case of out of screen"""
+
+    for enemy in g_enemies:
+        if enemy.rect.centery - enemy.image.get_rect().height // 2 >= SCREEN_HEIGHT:
+            enemy.rect.centery = 0 - enemy.image.get_rect().height // 2
+
+
+def objects_update():
+    """update locations of each object"""
+
+    g_Hero.update()
+    g_ObjectGroup.update()
+
+
+def objects_moving()->None:
     """hero moving from initial location upwards, and back to bottom, recursively"""
 
-    if g_Hero.rect.centery + g_Hero.image.get_height()//2 <= 0:
-        g_Hero.rect.centery = SCREEN_HEIGHT + g_Hero.image.get_height()//2
+    hero_loc_update()
+    enemy_loc_update()
 
     # TODO-1: what else can be done, if not redrawing a bkg screen?
     # Is current way waste of resources?
-    g_screen.blit(g_Background.image, (0, 0))
-    g_screen.blit(g_Hero.image, g_Hero.rect)
+    # g_screen.blit(g_Background.image, (0, 0))
+    # g_screen.blit(g_Hero.image, g_Hero.rect)
+    g_ObjectGroup.draw(g_screen)
     pygame.display.update()
 
 
@@ -110,8 +135,8 @@ def main()->None:
     """main program"""
 
     # load pygame modules
+    # TODO: why program can still run even if commenting this line?
     pygame.init()
-
     game_initial()
 
     clock = pygame.time.Clock()
@@ -119,9 +144,8 @@ def main()->None:
     while True:
         clock.tick(FRAME_FREQ)
 
-        g_Hero.update()
-
-        hero_moving()
+        objects_update()
+        objects_moving()
 
         # monitor events
         for event in pygame.event.get():
