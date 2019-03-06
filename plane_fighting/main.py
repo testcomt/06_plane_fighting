@@ -1,6 +1,8 @@
 #! /usr/local/bin/python3
 
 import pygame
+from plane_fighting import plane_sprites
+
 
 # When import and use pygame for the 1st time, the following error:
 # 2019-03-05 10:57:37.759 Python[38113:44660827] 10:57:37.759 WARNING:  140: This application, or a library it uses, is using the deprecated Carbon Component Manager for hosting Audio Units. Support for this will be removed in a future release. Also, this makes the host incompatible with version 3 audio units. Please transition to the API's in AudioComponent.h.i
@@ -55,19 +57,20 @@ import pygame
 # https://bitbucket.org/pygame/pygame/issues/284/max-osx-el-capitan-using-the-deprecated
 # Tai Xiaomei: 2019.3.5
 
-# Define size of game screen
+# Define size of game screen AND initail loc of hero
 SCREEN_WIDTH = 480
 SCREEN_HEIGHT = 700
-# Define hero image's width and height
-HERO_WIDTH = 102
-HERO_HEIGHT = 126
-HERO_INIT_X = 150
-HERO_INIT_Y = 300
+HERO_INIT_X = 250
+HERO_INIT_Y = 400
 # Define frame frequency AND moving step
 FRAME_FREQ = 60
-MOVING_STEP_OF_HERO = 1
 
-def game_initial()->tuple:
+g_screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+g_Background = plane_sprites.GameSprites("./images/background.png", 0)
+g_Hero = plane_sprites.GameSprites("./images/me1.png")
+
+
+def game_initial()->None:
     """initialization: prepare screen, images
     R in RIMGEN - Iterations can be multiple ways:
                   step by step of a procedure;
@@ -77,29 +80,29 @@ def game_initial()->tuple:
 
     """
 
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-
-    # load image 加载图像
-    background_image = pygame.image.load("./images/background.png")
-    # draw screen 绘制画布
-    screen.blit(background_image, (0, 0))
-
-    hero = pygame.image.load("./images/me1.png")
-    screen.blit(hero, (HERO_INIT_X, HERO_INIT_Y))
+    # draw screen update display
+    g_screen.blit(g_Background.image, (0, 0))
+    g_screen.blit(g_Hero.image, (HERO_INIT_X, HERO_INIT_Y))
     pygame.display.update()
 
-    return background_image, hero, screen
+    # set initail location: two ways of coding
+    # g_Hero.rect = g_Hero.image.get_rect(center=(HERO_INIT_X, HERO_INIT_Y))
+    g_Hero.rect.centerx = HERO_INIT_X
+    g_Hero.rect.centery = HERO_INIT_Y
+
+    return
 
 
-def hero_moving(bkg, hero, screen, hero_rect):
+def hero_moving()->None:
     """hero moving from initial location upwards, and back to bottom, recursively"""
 
-    if hero_rect.y + hero_rect.height <= 0:
-        hero_rect.y = SCREEN_HEIGHT
+    if g_Hero.rect.centery + g_Hero.image.get_height()//2 <= 0:
+        g_Hero.rect.centery = SCREEN_HEIGHT + g_Hero.image.get_height()//2
+
     # TODO-1: what else can be done, if not redrawing a bkg screen?
     # Is current way waste of resources?
-    screen.blit(bkg, (0, 0))
-    screen.blit(hero, hero_rect)
+    g_screen.blit(g_Background.image, (0, 0))
+    g_screen.blit(g_Hero.image, g_Hero.rect)
     pygame.display.update()
 
 
@@ -109,18 +112,16 @@ def main()->None:
     # load pygame modules
     pygame.init()
 
-    (bkg, hero, screen) = game_initial()
+    game_initial()
 
     clock = pygame.time.Clock()
-
-    hero_rect = pygame.Rect(HERO_INIT_X, HERO_INIT_Y, HERO_WIDTH, HERO_HEIGHT)
 
     while True:
         clock.tick(FRAME_FREQ)
 
-        hero_rect.y -= MOVING_STEP_OF_HERO
+        g_Hero.update()
 
-        hero_moving(bkg, hero, screen, hero_rect)
+        hero_moving()
 
         # monitor events
         for event in pygame.event.get():
