@@ -27,7 +27,7 @@ class PlaneGame(object):
 
         try:
             # 4. create game objects: bkg, hero, sprites
-            self.__create_objects__()
+            self.__create_objects()
         except Exception as error:
             print("Something is wrong with game images: ", error)
             exit()
@@ -38,17 +38,17 @@ class PlaneGame(object):
 
         while True:
 
-            self.__set_frame_frequency__()
+            self.__set_frame_frequency()
 
-            self.__event_handling__()
+            self.__event_handling()
 
-            self.__check_collisions__()
+            self.__check_collisions()
 
-            self.__update_objects__()
+            self.__update_objects()
 
-            self.__update_display__()
+            self.__update_display()
 
-    def __create_objects__(self):
+    def __create_objects(self):
         """create bkg, hero, sprites using GameObjects class"""
 
         self.bkg = plane_objects.GameObjects("./images/background.png", 0)
@@ -57,54 +57,59 @@ class PlaneGame(object):
         self.sprite2 = plane_objects.GameObjects("./images/enemy1.png", 2, 50, 50)
         self.sprite_group = pygame.sprite.Group(self.bkg, self.hero, self.sprite1, self.sprite2)
 
-    def __event_handling__(self):
+    def __event_handling(self):
         """handling events from users"""
 
         # monitor events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                exit()
+                self.__game_over()
 
-    def __check_collisions__(self):
+    def __check_collisions(self):
         """checking collisions"""
 
         pass
 
-    def __set_frame_frequency__(self):
+    def __set_frame_frequency(self):
         """set fresh frequencies by setting clock ticking frequency"""
 
         self.clock.tick(FRAME_FREQ)
 
-    def __update_objects__(self):
+    def __update_objects(self):
         """redraw objects on the screen"""
 
         # The order of these two lines makes difference, if updating all elements
-        # in sprites_group in __sprites_loc_update__() instead of only updating element [2:]
-        self.__hero_loc_update__()
-        self.__sprites_loc_update__()
+        # in sprites_group in __sprites_loc_update() instead of only updating element [2:]
+        self.__hero_loc_update()
+        self.__sprites_loc_update()
 
         self.sprite_group.update()
 
-    def __update_display__(self):
+    def __update_display(self):
         """update display of objects on the screen"""
 
         self.sprite_group.draw(self.screen)
         pygame.display.update()
 
-    def __hero_loc_update__(self):
+    def __hero_loc_update(self):
         """update hero's location whenever out of screen"""
 
         if self.hero.rect.centery + self.hero.rect.height // 2 <= 0:
             self.hero.rect.centery = SCREEN_RECT.height + self.hero.rect.height // 2
 
-    def __sprites_loc_update__(self):
+    def __sprites_loc_update(self):
         """update each sprite's location whenever out of screen"""
 
         enemy_list = self.sprite_group.sprites()
         for enemy in enemy_list[2:]:
             if enemy.rect.centery - enemy.rect.height // 2 >= SCREEN_RECT.height:
                 enemy.rect.centery = 0 - enemy.rect.height // 2
+
+    @staticmethod
+    def __game_over():
+
+        pygame.quit()
+        exit()
 
 
 if __name__ == '__main__':
