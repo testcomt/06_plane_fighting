@@ -63,7 +63,8 @@ class PlaneGame(object):
         # monitor events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                self.__game_over()
+                # use class name to call for static method
+                PlaneGame.__game_over()
 
     def __check_collisions(self):
         """checking collisions"""
