@@ -21,18 +21,20 @@ class GameObjects(pygame.sprite.Sprite):
 
         self.image = pygame.image.load(image_name)
         self.rect = self.image.get_rect()
-        self.pos = [init_x, init_y]
-        self.rect.centerx = init_x + self.rect.width // 2
-        self.rect.centery = init_y + self.rect.height // 2
-        # print("rect is ", self.rect)
+        self.rect.x = init_x
+        self.rect.y = init_y
         self.speed = speed
 
     def update(self):
-        """update location, rewrite this method from parent class
-        TODO: heritate this method for hero: moving upwards; rewrite for other obj
-        """
+        """update location, rewrite this method from parent class"""
 
         self.rect.y += self.speed
+
+        # judging whether the obj is out of screen
+        if self.speed > 0 and self.rect.y >= SCREEN_RECT.height:
+                self.rect.y = - self.rect.height
+        elif self.speed < 0 and self.rect.y <= - self.rect.height:
+                self.rect.y = SCREEN_RECT.height
 
 
 if __name__ == '__main__':
@@ -43,7 +45,7 @@ if __name__ == '__main__':
 
     # print(os.getcwd())
 
-    screen.blit(bkg_test.image, bkg_test.pos)
+    screen.blit(bkg_test.image, (bkg_test.rect.x, bkg_test.rect.y))
     pygame.display.update()
 
     while True:

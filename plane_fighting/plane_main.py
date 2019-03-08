@@ -32,14 +32,11 @@ class PlaneGame(object):
         while True:
 
             self.__set_frame_frequency()
-
             self.__event_handling()
-
             self.__check_collisions()
-
             self.__update_objects()
 
-            self.__update_display()
+            pygame.display.update()
 
     def __create_objects(self):
         """create bkg, hero, sprites using GameObjects class"""
@@ -82,31 +79,12 @@ class PlaneGame(object):
         # The order of these two lines makes difference
         # If self.__hero_loc_update() happens 1st, its location will be further updated
         # when running sprites update
-        self.__sprites_loc_update()
-        self.__hero_loc_update()
+        # refactor: move these updating actions into class update method
+        # self.__sprites_loc_update()
+        # self.__hero_loc_update()
 
         self.sprite_group.update()
-
-    def __update_display(self):
-        """update display of objects on the screen"""
-
         self.sprite_group.draw(self.screen)
-        pygame.display.update()
-
-    def __hero_loc_update(self):
-        """update hero's location whenever out of screen"""
-
-        if self.hero.rect.y <= - self.hero.rect.height:
-            self.hero.rect.y = plane_objects.SCREEN_RECT.height
-
-    def __sprites_loc_update(self):
-        """update each sprite's location whenever out of screen
-        Due to no specific order in this sprite_group, the way of sprite_list[2:] doesn't work
-        """
-
-        for enemy in self.sprite_group.sprites():
-            if enemy.rect.y >= plane_objects.SCREEN_RECT.height:
-                enemy.rect.y = - enemy.rect.height
 
     @staticmethod
     def __game_over():
