@@ -1,5 +1,4 @@
 #! /usr/local/bin/python3
-
 import pygame
 from plane_fighting import plane_sprites
 
