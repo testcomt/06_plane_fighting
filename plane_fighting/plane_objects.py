@@ -1,5 +1,13 @@
 import pygame
-import os
+# import os
+
+# TODO: why need to define these constants in this file instead of main file?
+# don't define multiple single constants, but define one compound constant
+# constants can also be defined by using methods
+# SCREEN_WIDTH = 480
+# SCREEN_HEIGHT = 700
+SCREEN_RECT = pygame.Rect(0, 0, 480, 700)
+FRAME_FREQ = 60
 
 
 class GameObjects(pygame.sprite.Sprite):
