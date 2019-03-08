@@ -14,9 +14,9 @@ class GameObjects(pygame.sprite.Sprite):
         self.image = pygame.image.load(image_name)
         self.rect = self.image.get_rect()
         self.pos = [init_x, init_y]
-        self.rect.centerx = init_x + self.image.get_rect().width // 2
-        self.rect.centery = init_y + self.image.get_rect().height // 2
-        print("rect is ", self.rect)
+        self.rect.centerx = init_x + self.rect.width // 2
+        self.rect.centery = init_y + self.rect.height // 2
+        # print("rect is ", self.rect)
         self.speed = speed
 
     def update(self):
