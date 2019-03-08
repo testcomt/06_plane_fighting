@@ -1,5 +1,5 @@
 #! /usr/local/bin/python3
-
+# order of importing: official modules; 3rd party modules; program modules
 import pygame
 from plane_fighting import plane_objects
 
@@ -25,9 +25,10 @@ class PlaneGame(object):
             print("Something is wrong with game images: ", error)
             exit()
 
-    def start_game(self):
+        # 5. create a timer
+        pygame.time.set_timer(plane_objects.TIMER_EVENT_ID, plane_objects.ENEMY_OUT_FREQ)
 
-        print("game start")
+    def start_game(self):
 
         while True:
 
@@ -47,12 +48,13 @@ class PlaneGame(object):
         self.hero = plane_objects.GameObjects("./images/me1.png", -1, 150, 300)
 
         self.sprite1 = plane_objects.GameObjects("./images/enemy1.png", 2)
-        self.sprite2 = plane_objects.GameObjects("./images/enemy1.png", 3, 50, 50)
+        self.sprite2 = plane_objects.GameObjects("./images/enemy1.png", 3, 250, 60)
 
         # Attention: The Sprites in the Group are not ordered,
         # so drawing and iterating the Sprites is in no particular order.
         # Doubt: the actual iterating order in this Group depends on the order of def.
-        self.sprite_group = pygame.sprite.Group(self.bkg, self.bkg2, self.hero, self.sprite1, self.sprite2)
+        # TODO: UPDATE NAME
+        self.objects_group = pygame.sprite.Group(self.bkg, self.bkg2, self.hero, self.sprite1, self.sprite2)
 
     def __event_handling(self):
         """handling events from users"""
@@ -62,6 +64,9 @@ class PlaneGame(object):
             if event.type == pygame.QUIT:
                 # use class name to call for static method
                 PlaneGame.__game_over()
+            elif event.type == plane_objects.TIMER_EVENT_ID:
+                self.random_enemy = plane_objects.RandomEnemy()
+                self.objects_group.add(self.random_enemy)
 
     def __check_collisions(self):
         """checking collisions"""
@@ -83,8 +88,8 @@ class PlaneGame(object):
         # self.__sprites_loc_update()
         # self.__hero_loc_update()
 
-        self.sprite_group.update()
-        self.sprite_group.draw(self.screen)
+        self.objects_group.update()
+        self.objects_group.draw(self.screen)
 
     @staticmethod
     def __game_over():

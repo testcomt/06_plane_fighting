@@ -1,5 +1,5 @@
+import random
 import pygame
-# import os
 
 # TODO: why need to define these constants in this file instead of main file?
 # don't define multiple single constants, but define one compound constant
@@ -8,6 +8,13 @@ import pygame
 # SCREEN_HEIGHT = 700
 SCREEN_RECT = pygame.Rect(0, 0, 480, 700)
 FRAME_FREQ = 60
+# create random_enemy event, using pygame's user event constant
+TIMER_EVENT_ID = pygame.USEREVENT
+# how frequent will an random enemy be out
+ENEMY_OUT_FREQ = 1000
+# min and max speed for random enemies
+MIN_SPEED = 2
+MAX_SPEED = 5
 
 
 class GameObjects(pygame.sprite.Sprite):
@@ -35,6 +42,27 @@ class GameObjects(pygame.sprite.Sprite):
                 self.rect.y = - self.rect.height
         elif self.speed < 0 and self.rect.y <= - self.rect.height:
                 self.rect.y = SCREEN_RECT.height
+
+
+class RandomEnemy(GameObjects):
+    """A random enemy will appear every a period of time"""
+
+    def __init__(self):
+        super().__init__("./images/enemy1.png")
+        # let bottom be 0, so that enemy will appear right from up line
+        self.rect.bottom = 0
+
+        self.speed = random.randint(MIN_SPEED, MAX_SPEED)
+        self.rect.x = random.randint(0, SCREEN_RECT.width - self.rect.width)
+
+    def update(self):
+
+        self.rect.y += self.speed
+
+        if self.rect.y >= SCREEN_RECT.height:
+            # kill() will remove from all sprite groups
+            # and call __delete__() to destroy self
+            self.kill()
 
 
 if __name__ == '__main__':
