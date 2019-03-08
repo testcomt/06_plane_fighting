@@ -28,7 +28,9 @@ class GameObjects(pygame.sprite.Sprite):
         self.speed = speed
 
     def update(self):
-        """update location, rewrite this method from parent class"""
+        """update location, rewrite this method from parent class
+        TODO: heritate this method for hero: moving upwards; rewrite for other obj
+        """
 
         self.rect.y += self.speed
 

@@ -96,8 +96,8 @@ class PlaneGame(object):
     def __hero_loc_update(self):
         """update hero's location whenever out of screen"""
 
-        if self.hero.rect.centery + self.hero.rect.height // 2 <= 0:
-            self.hero.rect.centery = plane_objects.SCREEN_RECT.height + self.hero.rect.height // 2
+        if self.hero.rect.y <= - self.hero.rect.height:
+            self.hero.rect.y = plane_objects.SCREEN_RECT.height
 
     def __sprites_loc_update(self):
         """update each sprite's location whenever out of screen
@@ -105,8 +105,8 @@ class PlaneGame(object):
         """
 
         for enemy in self.sprite_group.sprites():
-            if enemy.rect.centery - enemy.rect.height // 2 >= plane_objects.SCREEN_RECT.height:
-                enemy.rect.centery = - enemy.rect.height // 2
+            if enemy.rect.y >= plane_objects.SCREEN_RECT.height:
+                enemy.rect.y = - enemy.rect.height
 
     @staticmethod
     def __game_over():
