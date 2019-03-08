@@ -3,8 +3,11 @@
 import pygame
 from plane_fighting import plane_objects
 
-SCREEN_WIDTH = 480
-SCREEN_HEIGHT = 700
+# don't define multiple single constants, but define one compound constant
+# constants can also be defined by using methods
+# SCREEN_WIDTH = 480
+# SCREEN_HEIGHT = 700
+SCREEN_RECT = pygame.Rect(0, 0, 480, 700)
 FRAME_FREQ = 60
 
 
@@ -20,7 +23,7 @@ class PlaneGame(object):
         self.clock = pygame.time.Clock()
 
         # 3. create screen object
-        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        self.screen = pygame.display.set_mode(SCREEN_RECT.size)
 
         try:
             # 4. create game objects: bkg, hero, sprites
@@ -93,14 +96,14 @@ class PlaneGame(object):
         """update hero's location whenever out of screen"""
 
         if self.hero.rect.centery + self.hero.rect.height // 2 <= 0:
-            self.hero.rect.centery = SCREEN_HEIGHT + self.hero.rect.height // 2
+            self.hero.rect.centery = SCREEN_RECT.height + self.hero.rect.height // 2
 
     def __sprites_loc_update__(self):
         """update each sprite's location whenever out of screen"""
 
         enemy_list = self.sprite_group.sprites()
         for enemy in enemy_list[2:]:
-            if enemy.rect.centery - enemy.rect.height // 2 >= SCREEN_HEIGHT:
+            if enemy.rect.centery - enemy.rect.height // 2 >= SCREEN_RECT.height:
                 enemy.rect.centery = 0 - enemy.rect.height // 2
 
 
