@@ -44,11 +44,18 @@ class PlaneGame(object):
     def __create_objects(self):
         """create bkg, hero, sprites using GameObjects class"""
 
-        self.bkg = plane_objects.GameObjects("./images/background.png", 0)
-        self.hero = plane_objects.GameObjects("./images/me1.png", speed=-1, init_x=150, init_y=300)
-        self.sprite1 = plane_objects.GameObjects("./images/enemy1.png")
-        self.sprite2 = plane_objects.GameObjects("./images/enemy1.png", 2, 50, 50)
-        self.sprite_group = pygame.sprite.Group(self.bkg, self.hero, self.sprite1, self.sprite2)
+        self.bkg = plane_objects.GameObjects("./images/background.png")
+        self.bkg2 = plane_objects.GameObjects("./images/background.png", init_y=-plane_objects.SCREEN_RECT.height)
+
+        self.hero = plane_objects.GameObjects("./images/me1.png", -1, 150, 300)
+
+        self.sprite1 = plane_objects.GameObjects("./images/enemy1.png", 2)
+        self.sprite2 = plane_objects.GameObjects("./images/enemy1.png", 3, 50, 50)
+
+        # Attention: The Sprites in the Group are not ordered,
+        # so drawing and iterating the Sprites is in no particular order.
+        # Doubt: the actual iterating order in this Group depends on the order of def.
+        self.sprite_group = pygame.sprite.Group(self.bkg, self.bkg2, self.hero, self.sprite1, self.sprite2)
 
     def __event_handling(self):
         """handling events from users"""
@@ -72,10 +79,11 @@ class PlaneGame(object):
     def __update_objects(self):
         """redraw objects on the screen"""
 
-        # The order of these two lines makes difference, if updating all elements
-        # in sprites_group in __sprites_loc_update() instead of only updating element [2:]
-        self.__hero_loc_update()
+        # The order of these two lines makes difference
+        # If self.__hero_loc_update() happens 1st, its location will be further updated
+        # when running sprites update
         self.__sprites_loc_update()
+        self.__hero_loc_update()
 
         self.sprite_group.update()
 
@@ -92,12 +100,13 @@ class PlaneGame(object):
             self.hero.rect.centery = plane_objects.SCREEN_RECT.height + self.hero.rect.height // 2
 
     def __sprites_loc_update(self):
-        """update each sprite's location whenever out of screen"""
+        """update each sprite's location whenever out of screen
+        Due to no specific order in this sprite_group, the way of sprite_list[2:] doesn't work
+        """
 
-        enemy_list = self.sprite_group.sprites()
-        for enemy in enemy_list[2:]:
+        for enemy in self.sprite_group.sprites():
             if enemy.rect.centery - enemy.rect.height // 2 >= plane_objects.SCREEN_RECT.height:
-                enemy.rect.centery = 0 - enemy.rect.height // 2
+                enemy.rect.centery = - enemy.rect.height // 2
 
     @staticmethod
     def __game_over():
