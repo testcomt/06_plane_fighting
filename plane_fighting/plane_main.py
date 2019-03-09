@@ -30,7 +30,7 @@ class PlaneGame(object):
 
         # 5. create timers
         pygame.time.set_timer(plane_objects.TIMER_EVENT_ID, plane_objects.ENEMY_OUT_FREQ)
-        pygame.time.set_timer(plane_objects.TIMER_EVENT_ID + 1, plane_objects.ENEMY_OUT_FREQ // 15)
+        pygame.time.set_timer(plane_objects.TIMER_EVENT_ID + 1, plane_objects.BULLET_OUT_FREQ)
 
     def start_game(self):
 
@@ -41,22 +41,12 @@ class PlaneGame(object):
             self.__event_handling()
 
             if not b_collide and self.__check_hero_collision() != -1:
-                self.handling_hero_collision()
+                self.__handling_hero_collision()
                 b_collide = True
 
+            self.__check_enemies_collision()
             self.__update_objects()
             pygame.display.update()
-
-    def handling_hero_collision(self):
-        hero_destroy = plane_objects.GameObjects("./images/me_destroy_1.png", 0, self.hero.rect.x,
-                                                 self.hero.rect.y)
-        # TODO to be optimized
-        self.objects_group.add(hero_destroy)
-        pygame.time.set_timer(plane_objects.TIMER_EVENT_ID, 0)
-        pygame.time.set_timer(plane_objects.TIMER_EVENT_ID + 1, 0)
-        self.sprite1.kill()
-        self.sprite2.kill()
-        self.hero.kill()
 
     def __create_objects(self):
         """create bkg, hero, sprites using GameObjects class"""
@@ -108,11 +98,28 @@ class PlaneGame(object):
 
         return self.hero.rect.collidelist(collide_rect_list)
 
+    def __handling_hero_collision(self):
+        hero_destroy = plane_objects.GameObjects("./images/me_destroy_1.png", 0, self.hero.rect.x,
+                                                 self.hero.rect.y)
+        # TODO to be optimized
+        self.objects_group.add(hero_destroy)
+        pygame.time.set_timer(plane_objects.TIMER_EVENT_ID, 0)
+        pygame.time.set_timer(plane_objects.TIMER_EVENT_ID + 1, 0)
+        self.sprite1.kill()
+        self.sprite2.kill()
+        self.hero.kill()
+
     def __check_enemies_collision(self):
 
-        # enemy__list = self.
-        # for enemy in
-        pass
+        for enemy in self.enemy_group:
+            for bullet in self.hero.bullet_group:
+                if enemy.rect.colliderect(bullet.rect):
+                    self.__handling_enemies_collision(enemy)
+
+    @staticmethod
+    def __handling_enemies_collision(enemy):
+
+        enemy.kill()
 
     def __set_frame_frequency(self):
         """set fresh frequencies by setting clock ticking frequency"""

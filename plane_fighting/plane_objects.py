@@ -11,10 +11,12 @@ FRAME_FREQ = 60
 # create random_enemy event, using pygame's user event constant
 TIMER_EVENT_ID = pygame.USEREVENT
 # how frequent will an random enemy be out
-ENEMY_OUT_FREQ = 1000
+# TODO enemy out from slow to fast, from less to more to less...
+ENEMY_OUT_FREQ = 300
+BULLET_OUT_FREQ = 100
 # min and max speed for random enemies
-MIN_SPEED = 2
-MAX_SPEED = 5
+MIN_SPEED = 3
+MAX_SPEED = 6
 
 
 class GameObjects(pygame.sprite.Sprite):
