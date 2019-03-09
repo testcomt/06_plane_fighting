@@ -18,9 +18,6 @@ class PlaneGame(object):
         # 3. create screen object
         self.screen = pygame.display.set_mode(plane_objects.SCREEN_RECT.size)
 
-        # 6. collide checking list of all enemies
-        # self.enemy_group = []
-
         try:
             # 4. create game objects: bkg, hero, sprites
             self.__create_objects()
@@ -35,6 +32,7 @@ class PlaneGame(object):
     def start_game(self):
 
         b_collide = False
+
         while True:
 
             self.__set_frame_frequency()
@@ -58,11 +56,12 @@ class PlaneGame(object):
 
         self.sprite1 = plane_objects.GameObjects("./images/enemy1.png", 2)
         self.sprite2 = plane_objects.GameObjects("./images/enemy1.png", 3, 250, 60)
+        # enemy_group includes all enemies, used for judging collisions
         self.enemy_group = [self.sprite1, self.sprite2]
         # Attention: The Sprites in the Group are not ordered,
         # so drawing and iterating the Sprites is in no particular order.
         # Doubt: the actual iterating order in this Group depends on the order of def.
-        # TODO: UPDATE NAME
+        # objects.group: all objects in the game, which are updated together
         self.objects_group = pygame.sprite.Group(self.bkg, self.bkg2, self.hero, self.sprite1, self.sprite2)
 
     def __event_handling(self):
@@ -99,7 +98,9 @@ class PlaneGame(object):
         return self.hero.rect.collidelist(collide_rect_list)
 
     def __handling_hero_collision(self):
-        hero_destroy = plane_objects.GameObjects("./images/me_destroy_1.png", 0, self.hero.rect.x,
+
+        hero_destroy = plane_objects.GameObjects("./images/me_destroy_1.png", 0,
+                                                 self.hero.rect.x,
                                                  self.hero.rect.y)
         # TODO to be optimized
         self.objects_group.add(hero_destroy)

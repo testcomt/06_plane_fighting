@@ -78,9 +78,6 @@ class Hero(GameObjects):
 
     def update(self):
 
-        # moving upwards
-        # super().update()
-
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_LEFT]:
@@ -133,17 +130,3 @@ class Bullet(GameObjects):
 
         self.rect.y += self.speed
 
-
-if __name__ == '__main__':
-    pygame.init()
-
-    screen = pygame.display.set_mode((400, 700))
-    bkg_test = GameObjects("./images/me1.png", 0, 150, 300)
-
-    # print(os.getcwd())
-
-    screen.blit(bkg_test.image, (bkg_test.rect.x, bkg_test.rect.y))
-    pygame.display.update()
-
-    while True:
-        pass
