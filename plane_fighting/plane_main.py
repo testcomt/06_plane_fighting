@@ -18,6 +18,9 @@ class PlaneGame(object):
         # 3. create screen object
         self.screen = pygame.display.set_mode(plane_objects.SCREEN_RECT.size)
 
+        # 6. collide checking list
+        self.collide_rect_list = []
+
         try:
             # 4. create game objects: bkg, hero, sprites
             self.__create_objects()
@@ -25,18 +28,35 @@ class PlaneGame(object):
             print("Something is wrong with game images: ", error)
             exit()
 
-        # 5. create a timer
+        # 5. create timers
         pygame.time.set_timer(plane_objects.TIMER_EVENT_ID, plane_objects.ENEMY_OUT_FREQ)
+        pygame.time.set_timer(plane_objects.TIMER_EVENT_ID + 1, plane_objects.ENEMY_OUT_FREQ // 15)
 
     def start_game(self):
 
+        b_collide = False
         while True:
 
             self.__set_frame_frequency()
             self.__event_handling()
-            self.__check_collisions()
-            self.__update_objects()
 
+            if not b_collide and self.__check_collisions() != -1:
+                hero_destroy = plane_objects.GameObjects("./images/me_destroy_1.png", 0, self.hero.rect.x,
+                                                         self.hero.rect.y)
+                # TODO to be optimized
+                self.objects_group.add(hero_destroy)
+                # hero_destroy = pygame.image.load("./images/me_destroy_1.png")
+                # self.screen.blit(hero_destroy, (self.hero.rect.x, self.hero.rect.y))
+                # pygame.display.update()
+                print("collide....")
+                b_collide = True
+                pygame.time.set_timer(plane_objects.TIMER_EVENT_ID, 0)
+                pygame.time.set_timer(plane_objects.TIMER_EVENT_ID + 1, 0)
+                self.sprite1.kill()
+                self.sprite2.kill()
+                self.hero.kill()
+
+            self.__update_objects()
             pygame.display.update()
 
     def __create_objects(self):
@@ -45,11 +65,12 @@ class PlaneGame(object):
         self.bkg = plane_objects.GameObjects("./images/background.png")
         self.bkg2 = plane_objects.GameObjects("./images/background.png", init_y=-plane_objects.SCREEN_RECT.height)
 
-        self.hero = plane_objects.GameObjects("./images/me1.png", -1, 150, 300)
+        self.hero = plane_objects.Hero()
 
         self.sprite1 = plane_objects.GameObjects("./images/enemy1.png", 2)
         self.sprite2 = plane_objects.GameObjects("./images/enemy1.png", 3, 250, 60)
-
+        self.collide_rect_list.append(self.sprite1.rect)
+        self.collide_rect_list.append(self.sprite2.rect)
         # Attention: The Sprites in the Group are not ordered,
         # so drawing and iterating the Sprites is in no particular order.
         # Doubt: the actual iterating order in this Group depends on the order of def.
@@ -61,17 +82,32 @@ class PlaneGame(object):
 
         # monitor events
         for event in pygame.event.get():
+
             if event.type == pygame.QUIT:
                 # use class name to call for static method
                 PlaneGame.__game_over()
             elif event.type == plane_objects.TIMER_EVENT_ID:
                 self.random_enemy = plane_objects.RandomEnemy()
                 self.objects_group.add(self.random_enemy)
+                self.collide_rect_list.append(self.random_enemy.rect)
+            elif event.type in (pygame.K_LEFT, pygame.K_RIGHT):
+                self.hero.update()
+            # TODO: what the usage of KEYDOWN; now, when space is down all the time,
+            # it can only shoot one bullet
+            elif event.type == pygame.KEYDOWN and \
+                    pygame.key.get_pressed()[pygame.K_SPACE]:
+                self.hero.fire()
+                self.objects_group.add(self.hero.bullet_group)
+            elif event.type == plane_objects.TIMER_EVENT_ID + 1:
+                self.hero.fire()
+                self.objects_group.add(self.hero.bullet_group)
 
     def __check_collisions(self):
-        """checking collisions"""
+        """checking collisions
+        TODO impl non-rectangular collide checking
+        """
 
-        pass
+        return self.hero.rect.collidelist(self.collide_rect_list)
 
     def __set_frame_frequency(self):
         """set fresh frequencies by setting clock ticking frequency"""
@@ -99,6 +135,5 @@ class PlaneGame(object):
 
 
 if __name__ == '__main__':
-
     plane_game = PlaneGame()
     plane_game.start_game()

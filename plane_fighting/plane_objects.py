@@ -65,6 +65,73 @@ class RandomEnemy(GameObjects):
             self.kill()
 
 
+class Hero(GameObjects):
+
+    def __init__(self):
+
+        super().__init__("./images/me1.png", 0)
+        self.rect.centerx = SCREEN_RECT.width // 2
+        self.rect.bottom = SCREEN_RECT.height - 120
+        self.bullet_group = pygame.sprite.Group()
+
+    def update(self):
+
+        # moving upwards
+        # super().update()
+
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_LEFT]:
+            self.__left_right(-1)
+        elif keys[pygame.K_RIGHT]:
+            self.__left_right(1)
+
+    def __left_right(self, direction=1):
+        """moving leftward or rightward
+        direction: if left key, -1; else 1
+        """
+
+        # TODO when use ctrl key, the result is: only command + ctrl take effect
+        if pygame.key.get_mods() & pygame.KMOD_SHIFT:
+            self.rect.x += 4 * direction
+        else:
+            self.rect.x += 2 * direction
+
+        if self.rect.left <= 0:
+            self.rect.left = 0
+
+        if self.rect.right >= SCREEN_RECT.width:
+            self.rect.right = SCREEN_RECT.width
+
+    def fire(self):
+
+        bullet1 = Bullet()
+        bullet1.rect.bottom = self.rect.top
+        bullet1.rect.centerx = self.rect.centerx
+
+        # bullet2 = Bullet()
+        # bullet2.rect.bottom = bullet1.rect.top - 5
+        # bullet2.rect.centerx = self.rect.centerx
+        #
+        # bullet3 = Bullet()
+        # bullet3.rect.bottom = bullet2.rect.top -5
+        # bullet3.rect.centerx = self.rect.centerx
+
+        self.bullet_group.add(bullet1)
+
+
+class Bullet(GameObjects):
+    """create bullets"""
+
+    def __init__(self):
+
+        super().__init__("./images/bullet1.png", -3)
+
+    def update(self):
+
+        self.rect.y += self.speed
+
+
 if __name__ == '__main__':
     pygame.init()
 
