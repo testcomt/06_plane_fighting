@@ -40,24 +40,23 @@ class PlaneGame(object):
             self.__set_frame_frequency()
             self.__event_handling()
 
-            if not b_collide and self.__check_collisions() != -1:
-                hero_destroy = plane_objects.GameObjects("./images/me_destroy_1.png", 0, self.hero.rect.x,
-                                                         self.hero.rect.y)
-                # TODO to be optimized
-                self.objects_group.add(hero_destroy)
-                # hero_destroy = pygame.image.load("./images/me_destroy_1.png")
-                # self.screen.blit(hero_destroy, (self.hero.rect.x, self.hero.rect.y))
-                # pygame.display.update()
-                print("collide....")
+            if not b_collide and self.__check_hero_collision() != -1:
+                self.handling_hero_collision()
                 b_collide = True
-                pygame.time.set_timer(plane_objects.TIMER_EVENT_ID, 0)
-                pygame.time.set_timer(plane_objects.TIMER_EVENT_ID + 1, 0)
-                self.sprite1.kill()
-                self.sprite2.kill()
-                self.hero.kill()
 
             self.__update_objects()
             pygame.display.update()
+
+    def handling_hero_collision(self):
+        hero_destroy = plane_objects.GameObjects("./images/me_destroy_1.png", 0, self.hero.rect.x,
+                                                 self.hero.rect.y)
+        # TODO to be optimized
+        self.objects_group.add(hero_destroy)
+        pygame.time.set_timer(plane_objects.TIMER_EVENT_ID, 0)
+        pygame.time.set_timer(plane_objects.TIMER_EVENT_ID + 1, 0)
+        self.sprite1.kill()
+        self.sprite2.kill()
+        self.hero.kill()
 
     def __create_objects(self):
         """create bkg, hero, sprites using GameObjects class"""
@@ -102,12 +101,15 @@ class PlaneGame(object):
                 self.hero.fire()
                 self.objects_group.add(self.hero.bullet_group)
 
-    def __check_collisions(self):
-        """checking collisions
-        TODO impl non-rectangular collide checking
-        """
+    def __check_hero_collision(self):
 
         return self.hero.rect.collidelist(self.collide_rect_list)
+
+    def __check_enemies_collision(self):
+
+        for bullet in self.hero.bullet_group:
+            if bullet.rect.collidelist(self.collide_rect_list) != -1:
+                pass
 
     def __set_frame_frequency(self):
         """set fresh frequencies by setting clock ticking frequency"""
