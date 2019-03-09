@@ -18,8 +18,8 @@ class PlaneGame(object):
         # 3. create screen object
         self.screen = pygame.display.set_mode(plane_objects.SCREEN_RECT.size)
 
-        # 6. collide checking list
-        self.collide_rect_list = []
+        # 6. collide checking list of all enemies
+        # self.enemy_group = []
 
         try:
             # 4. create game objects: bkg, hero, sprites
@@ -68,8 +68,7 @@ class PlaneGame(object):
 
         self.sprite1 = plane_objects.GameObjects("./images/enemy1.png", 2)
         self.sprite2 = plane_objects.GameObjects("./images/enemy1.png", 3, 250, 60)
-        self.collide_rect_list.append(self.sprite1.rect)
-        self.collide_rect_list.append(self.sprite2.rect)
+        self.enemy_group = [self.sprite1, self.sprite2]
         # Attention: The Sprites in the Group are not ordered,
         # so drawing and iterating the Sprites is in no particular order.
         # Doubt: the actual iterating order in this Group depends on the order of def.
@@ -88,7 +87,7 @@ class PlaneGame(object):
             elif event.type == plane_objects.TIMER_EVENT_ID:
                 self.random_enemy = plane_objects.RandomEnemy()
                 self.objects_group.add(self.random_enemy)
-                self.collide_rect_list.append(self.random_enemy.rect)
+                self.enemy_group.append(self.random_enemy)
             elif event.type in (pygame.K_LEFT, pygame.K_RIGHT):
                 self.hero.update()
             # TODO: what the usage of KEYDOWN; now, when space is down all the time,
@@ -103,13 +102,17 @@ class PlaneGame(object):
 
     def __check_hero_collision(self):
 
-        return self.hero.rect.collidelist(self.collide_rect_list)
+        collide_rect_list = []
+        for enemy in self.enemy_group:
+            collide_rect_list.append(enemy.rect)
+
+        return self.hero.rect.collidelist(collide_rect_list)
 
     def __check_enemies_collision(self):
 
-        for bullet in self.hero.bullet_group:
-            if bullet.rect.collidelist(self.collide_rect_list) != -1:
-                pass
+        # enemy__list = self.
+        # for enemy in
+        pass
 
     def __set_frame_frequency(self):
         """set fresh frequencies by setting clock ticking frequency"""
