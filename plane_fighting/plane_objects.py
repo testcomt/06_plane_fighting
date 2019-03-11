@@ -17,6 +17,8 @@ BULLET_OUT_FREQ = 100
 # min and max speed for random enemies
 MIN_SPEED = 3
 MAX_SPEED = 6
+# set bullet speed
+BULLET_SPEED = -3
 
 
 class GameObjects(pygame.sprite.Sprite):
@@ -77,6 +79,7 @@ class Hero(GameObjects):
         self.bullet_group = pygame.sprite.Group()
 
     def update(self):
+        """hero can move left or right based on keys"""
 
         keys = pygame.key.get_pressed()
 
@@ -89,7 +92,6 @@ class Hero(GameObjects):
         """moving leftward or rightward
         direction: if left key, -1; else 1
         """
-
         # TODO when use ctrl key, the result is: only command + ctrl take effect
         if pygame.key.get_mods() & pygame.KMOD_SHIFT:
             self.rect.x += 4 * direction
@@ -124,7 +126,7 @@ class Bullet(GameObjects):
 
     def __init__(self):
 
-        super().__init__("./images/bullet1.png", -3)
+        super().__init__("./images/bullet1.png", BULLET_SPEED)
 
     def update(self):
 
