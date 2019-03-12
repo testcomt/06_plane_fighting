@@ -40,7 +40,7 @@ class PlaneGame(object):
             self.__event_handling()
 
             if not self.b_collide:
-                if self.__check_hero_collision() != -1:
+                if self.__check_hero_collision():
                     self.__handling_hero_collision()
                     self.b_collide = True
                 else:
@@ -59,14 +59,15 @@ class PlaneGame(object):
         self.sprite1 = plane_objects.GameObjects("./images/enemy1.png", 2)
         self.sprite2 = plane_objects.GameObjects("./images/enemy1.png", 3, 250, 60)
 
-        # enemy_list includes all enemies, used for judging collisions
-        self.enemy_list = [self.sprite1, self.sprite2]
         # Attention: The Sprites in the Group are not ordered,
         # so drawing and iterating the Sprites is in no particular order.
         # Doubt: the actual iterating order in this Group depends on the order of def.
-        # objects.group: all objects in the game, which are updated together
-        self.objects_group = pygame.sprite.Group(self.bkg, self.bkg2, self.hero, self.sprite1, self.sprite2)
+        # random_enemy_group: the only purpose of this group is to kill random enemy
+        # while they are out of screen (for no clear reason, kill() does not call __del__
+        # if used within class def)
+        self.objects_group = pygame.sprite.Group(self.bkg, self.bkg2, self.hero)
         self.random_enemy_group = pygame.sprite.Group()
+        self.all_enemy_group = pygame.sprite.Group(self.sprite1, self.sprite2)
 
     def __event_handling(self):
         """handling events from users"""
@@ -85,7 +86,6 @@ class PlaneGame(object):
             #     print("left or right...")
             #     self.hero.update()
 
-            # TODO: what the usage of KEYDOWN; now, when space is down all the time,
             # There are two types of judging keys:
             # 1) one time event model (do next until KEYUP and keydwon again):
             #    if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE
@@ -96,31 +96,32 @@ class PlaneGame(object):
             elif (pygame.key.get_pressed()[pygame.K_SPACE] and not self.b_collide) or \
                  (event.type == plane_objects.TIMER_EVENT_ID + 1):
                 self.hero.fire()
-                # self.objects_group.add(self.hero.bullet_group)
 
     def __create_random_enemy(self):
 
         self.random_enemy = plane_objects.RandomEnemy()
         self.random_enemy_group.add(self.random_enemy)
-        self.enemy_list.append(self.random_enemy)
+        self.all_enemy_group.add(self.random_enemy)
 
     def __check_hero_collision(self):
 
-        collide_rect_list = []
-        for enemy in self.enemy_list:
-            collide_rect_list.append(enemy.rect)
+        # This way of checking: collsion with rectangle
+        # collide_rect_list = []
+        # for enemy in self.all_enemy_group:
+        #     collide_rect_list.append(enemy.rect)
+        #
+        # return self.hero.rect.collidelist(collide_rect_list)
 
-        return self.hero.rect.collidelist(collide_rect_list)
+        return len(pygame.sprite.spritecollide(self.hero,
+                                               self.all_enemy_group,
+                                               True,
+                                               pygame.sprite.collide_mask))
 
     def __handling_hero_collision(self):
 
         hero_destroy = plane_objects.GameObjects("./images/me_destroy_1.png", 0,
                                                  self.hero.rect.x,
                                                  self.hero.rect.y)
-        # after empty group, all obj will be freezed on the screen
-        # otherwise, objs will move on until disappear from the screen
-        # print("there are %d random enemies before collision." % (len(self.objects_group) - 5))
-        # self.objects_group.empty()
 
         self.objects_group.add(hero_destroy)
 
@@ -140,20 +141,17 @@ class PlaneGame(object):
 
     def __check_enemies_collision(self):
 
-        for enemy in self.enemy_list:
-            for bullet in self.hero.bullet_group:
-                if enemy.rect.colliderect(bullet.rect):
-                    self.enemy_list.remove(enemy)
-                    self.__handling_enemies_collision(enemy)
-                    break
+        # for enemy in self.enemy_list:
+        #     for bullet in self.hero.bullet_group:
+        #         if enemy.rect.colliderect(bullet.rect):
+        #             self.enemy_list.remove(enemy)
+        #             self.__handling_enemies_collision(enemy)
+        #             break
 
-    @staticmethod
-    def __handling_enemies_collision(enemy):
-
-        # print("before -- %d" % len(self.random_enemy_group))
-        # print("collision ...")
-        enemy.kill()
-        # print("after -- %d" % len(self.random_enemy_group))
+        pygame.sprite.groupcollide(self.all_enemy_group,
+                                   self.hero.bullet_group,
+                                   True, True,
+                                   pygame.sprite.collide_mask)
 
     def __set_frame_frequency(self):
         """set fresh frequencies by setting clock ticking frequency"""
@@ -163,15 +161,8 @@ class PlaneGame(object):
     def __update_objects(self):
         """redraw objects on the screen"""
 
-        # The order of these two lines makes difference
-        # If self.__hero_loc_update() happens 1st, its location will be further updated
-        # when running sprites update
-        # refactor: move these updating actions into class update method
-        # self.__sprites_loc_update()
-        # self.__hero_loc_update()
-        # before update, add bullet_group into objects_group
         self.objects_group.add(self.hero.bullet_group)
-        self.objects_group.add(self.random_enemy_group)
+        self.objects_group.add(self.all_enemy_group)
 
         self.objects_group.update()
         self.objects_group.draw(self.screen)
@@ -194,8 +185,6 @@ class PlaneGame(object):
 
         for random_enemy in self.random_enemy_group:
             if random_enemy.rect.y > plane_objects.SCREEN_RECT.height:
-                self.enemy_list.remove(random_enemy)
-                # print("before -- %d" % len(self.random_enemy_group))
                 # print("out of screen...")
                 random_enemy.kill()
                 # print("after -- %d" % len(self.random_enemy_group))

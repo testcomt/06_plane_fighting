@@ -127,19 +127,12 @@ class Hero(GameObjects):
     def fire(self):
         """create bullet obj and add into bullet_group"""
 
-        bullet1 = Bullet()
-        bullet1.rect.bottom = self.rect.top
-        bullet1.rect.centerx = self.rect.centerx
+        for i in (0, 1, 2):
+            bullet1 = Bullet()
+            bullet1.rect.bottom = self.rect.top - i * 20
+            bullet1.rect.centerx = self.rect.centerx
 
-        # bullet2 = Bullet()
-        # bullet2.rect.bottom = bullet1.rect.top - 5
-        # bullet2.rect.centerx = self.rect.centerx
-        #
-        # bullet3 = Bullet()
-        # bullet3.rect.bottom = bullet2.rect.top -5
-        # bullet3.rect.centerx = self.rect.centerx
-
-        self.bullet_group.add(bullet1)
+            self.bullet_group.add(bullet1)
 
     # def __del__(self):
     #
