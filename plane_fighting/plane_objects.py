@@ -37,7 +37,10 @@ class GameObjects(pygame.sprite.Sprite):
         self.speed = speed
 
     def update(self):
-        """update location, rewrite this method from parent class"""
+        """
+        1. update location based on speed, rewrite this method from parent class
+        2. out of screen judgement: update y
+        """
 
         self.rect.y += self.speed
 
@@ -46,6 +49,10 @@ class GameObjects(pygame.sprite.Sprite):
                 self.rect.y = - self.rect.height
         elif self.speed < 0 and self.rect.y <= - self.rect.height:
                 self.rect.y = SCREEN_RECT.height
+
+    # def __del__(self):
+    #
+    #     print("sprites died...")
 
 
 class RandomEnemy(GameObjects):
@@ -63,10 +70,22 @@ class RandomEnemy(GameObjects):
 
         self.rect.y += self.speed
 
-        if self.rect.y >= SCREEN_RECT.height:
-            # kill() will remove from all sprite groups
-            # and call __delete__() to destroy self
-            self.kill()
+        # if self.rect.y > SCREEN_RECT.bottom:
+        #     # kill() will remove from all sprite groups
+        #     # and call __delete__() to destroy self
+        #     print("out of screen now ...")
+        #     self.kill()
+
+    # def __del__(self):
+    #     """TODO: WHY? This method is not called when enemy.kill() is executed.
+    #        possible reason: if kill() is called from an instance, it may call __del__()
+    #        if called from within the class def, it won't call __del__()
+    #        but,
+    #        for Bullet class, self.kill() will call self.__del__() automatically
+    #        for RandomEnemy, self.kill() won't call its self.__del()
+    #      """
+    #
+    #     print("Random enemy died...")
 
 
 class Hero(GameObjects):
@@ -89,8 +108,9 @@ class Hero(GameObjects):
             self.__left_right(1)
 
     def __left_right(self, direction=1):
-        """moving leftward or rightward
-        direction: if left key, -1; else 1
+        """
+        1. moving leftward or rightward direction: if left key, -1; else 1
+        2. update loc while judging whether hero is out of screen
         """
         # TODO when use ctrl key, the result is: only command + ctrl take effect
         if pygame.key.get_mods() & pygame.KMOD_SHIFT:
@@ -105,6 +125,7 @@ class Hero(GameObjects):
             self.rect.right = SCREEN_RECT.width
 
     def fire(self):
+        """create bullet obj and add into bullet_group"""
 
         bullet1 = Bullet()
         bullet1.rect.bottom = self.rect.top
@@ -120,6 +141,10 @@ class Hero(GameObjects):
 
         self.bullet_group.add(bullet1)
 
+    # def __del__(self):
+    #
+    #     print("hero is dead.")
+
 
 class Bullet(GameObjects):
     """create bullets"""
@@ -129,6 +154,35 @@ class Bullet(GameObjects):
         super().__init__("./images/bullet1.png", BULLET_SPEED)
 
     def update(self):
+        """
+        1. update y based on speed;
+        2. destroy bullets when out of screen
+        Remark: only for Bullet, self.kill() takes effect:
+                actually call __del__ to destroy itself.
+        :return:
+        """
 
         self.rect.y += self.speed
+        if self.rect.bottom < 0:
+            self.kill()
 
+    # def __del__(self):
+    #     """to observe whether bullet obj has been deleted"""
+    #     print("bullet is gone...")
+
+
+if __name__ == '__main__':
+
+    enemy = RandomEnemy()
+
+    while True:
+        screen = pygame.display.set_mode(SCREEN_RECT.size)
+        screen.blit(enemy.image, (enemy.rect.x, enemy.rect.y))
+        pygame.display.update()
+
+        enemy.update()
+        if enemy.rect.y > SCREEN_RECT.bottom:
+
+            print("enemy is dead: ", enemy)
+            del enemy
+            enemy = RandomEnemy()

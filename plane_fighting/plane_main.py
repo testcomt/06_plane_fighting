@@ -59,13 +59,14 @@ class PlaneGame(object):
         self.sprite1 = plane_objects.GameObjects("./images/enemy1.png", 2)
         self.sprite2 = plane_objects.GameObjects("./images/enemy1.png", 3, 250, 60)
 
-        # enemy_group includes all enemies, used for judging collisions
-        self.enemy_group = [self.sprite1, self.sprite2]
+        # enemy_list includes all enemies, used for judging collisions
+        self.enemy_list = [self.sprite1, self.sprite2]
         # Attention: The Sprites in the Group are not ordered,
         # so drawing and iterating the Sprites is in no particular order.
         # Doubt: the actual iterating order in this Group depends on the order of def.
         # objects.group: all objects in the game, which are updated together
         self.objects_group = pygame.sprite.Group(self.bkg, self.bkg2, self.hero, self.sprite1, self.sprite2)
+        self.random_enemy_group = pygame.sprite.Group()
 
     def __event_handling(self):
         """handling events from users"""
@@ -100,13 +101,13 @@ class PlaneGame(object):
     def __create_random_enemy(self):
 
         self.random_enemy = plane_objects.RandomEnemy()
-        self.objects_group.add(self.random_enemy)
-        self.enemy_group.append(self.random_enemy)
+        self.random_enemy_group.add(self.random_enemy)
+        self.enemy_list.append(self.random_enemy)
 
     def __check_hero_collision(self):
 
         collide_rect_list = []
-        for enemy in self.enemy_group:
+        for enemy in self.enemy_list:
             collide_rect_list.append(enemy.rect)
 
         return self.hero.rect.collidelist(collide_rect_list)
@@ -118,7 +119,8 @@ class PlaneGame(object):
                                                  self.hero.rect.y)
         # after empty group, all obj will be freezed on the screen
         # otherwise, objs will move on until disappear from the screen
-        self.objects_group.empty()
+        # print("there are %d random enemies before collision." % (len(self.objects_group) - 5))
+        # self.objects_group.empty()
 
         self.objects_group.add(hero_destroy)
 
@@ -128,24 +130,30 @@ class PlaneGame(object):
         pygame.time.set_timer(plane_objects.TIMER_EVENT_ID + 1, 0)
         #
         # # in debug mode, random enemies still being created even after collision and timer stoped
-        # # so, clear this enemy_group, so that no loop will run in __check_enemies_collision
-        # self.enemy_group.clear()
-        #
+        # # so, clear this enemy_list, so that no loop will run in __check_enemies_collision
+        # self.enemy_list.clear()
+        # TODO: whether the following obj need to be killed explicitly?
+        # This may depend on how to deal with restart-game event.
         # self.sprite1.kill()
         # self.sprite2.kill()
         # self.hero.kill()
 
     def __check_enemies_collision(self):
 
-        for enemy in self.enemy_group:
+        for enemy in self.enemy_list:
             for bullet in self.hero.bullet_group:
                 if enemy.rect.colliderect(bullet.rect):
+                    self.enemy_list.remove(enemy)
                     self.__handling_enemies_collision(enemy)
+                    break
 
     @staticmethod
     def __handling_enemies_collision(enemy):
 
+        # print("before -- %d" % len(self.random_enemy_group))
+        # print("collision ...")
         enemy.kill()
+        # print("after -- %d" % len(self.random_enemy_group))
 
     def __set_frame_frequency(self):
         """set fresh frequencies by setting clock ticking frequency"""
@@ -163,10 +171,34 @@ class PlaneGame(object):
         # self.__hero_loc_update()
         # before update, add bullet_group into objects_group
         self.objects_group.add(self.hero.bullet_group)
+        self.objects_group.add(self.random_enemy_group)
 
         self.objects_group.update()
         self.objects_group.draw(self.screen)
+
+        # Attention: random_emeny_group update must be done after objects_group update
+        # because in objects_group, there is background image.
+        # The other way is like above usage: add random_enemy_group into objects_group
+        # before update.
+        # self.random_enemy_group.update()
+        # self.random_enemy_group.draw(self.screen)
+
+        self.__del_enemy_out_of_screen()
+
         pygame.display.update()
+
+    def __del_enemy_out_of_screen(self):
+        """Have to judge out of screen here, because within RandomEnemy class def,
+        even use self.kill() in update(), __del__() won't be called.
+        """
+
+        for random_enemy in self.random_enemy_group:
+            if random_enemy.rect.y > plane_objects.SCREEN_RECT.height:
+                self.enemy_list.remove(random_enemy)
+                # print("before -- %d" % len(self.random_enemy_group))
+                # print("out of screen...")
+                random_enemy.kill()
+                # print("after -- %d" % len(self.random_enemy_group))
 
     @staticmethod
     def __game_over():
