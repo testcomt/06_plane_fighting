@@ -91,10 +91,10 @@ class PlaneGame(object):
             #    if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE
             # 2) continuous operating model:
             #    if pygame.key.get_pressed()[pygame.K_SPACE]
-            # it can only shoot one bullet
             # TODO why is model 1 when collision happens, model 2 in playing mode?
-            elif (pygame.key.get_pressed()[pygame.K_SPACE] and not self.b_collide) or \
+            elif (pygame.key.get_pressed()[pygame.K_SPACE] and self.b_collide) or \
                  (event.type == plane_objects.TIMER_EVENT_ID + 1):
+            # elif pygame.key.get_pressed()[pygame.K_SPACE]:
                 self.hero.fire()
 
     def __create_random_enemy(self):
@@ -138,7 +138,7 @@ class PlaneGame(object):
         # # in debug mode, random enemies still being created even after collision and timer stoped
         # # so, clear this enemy_list, so that no loop will run in __check_enemies_collision
         # self.enemy_list.clear()
-        # TODO: whether the following obj need to be killed explicitly?
+        # whether the following obj need to be killed explicitly?
         # This may depend on how to deal with restart-game event.
         # self.sprite1.kill()
         # self.sprite2.kill()

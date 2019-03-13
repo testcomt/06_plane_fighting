@@ -4,7 +4,6 @@ import pygame
 class GameSprites(pygame.sprite.Sprite):
     """create all objects in the screen:
     background, hero, enemies, etc.
-    TODO: maybe initial locations can be set as instance properties
     """
 
     def __init__(self, image_name, speed=1):
