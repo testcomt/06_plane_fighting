@@ -119,13 +119,18 @@ class PlaneGame(object):
 
     def __handling_hero_collision(self):
 
-        hero_destroy = plane_objects.GameObjects("./images/me_destroy_1.png", 0,
-                                                 self.hero.rect.x,
-                                                 self.hero.rect.y)
+        # after drawing program struture frame graph, refactor this: no need to create object
+        #hero_destroy = plane_objects.GameObjects("./images/me_destroy_1.png", 0,
+        #                                         self.hero.rect.x,
+        #                                         self.hero.rect.y)
 
-        self.objects_group.add(hero_destroy)
+        # self.objects_group.add(hero_destroy)
 
-        self.__update_objects()
+        self.hero.image = pygame.image.load("./images/me_destroy_1.png")
+
+        # self.__update_objects()
+        self.screen.blit(self.hero.image, (self.hero.rect.x, self.hero.rect.y))
+        pygame.display.update()
 
         pygame.time.set_timer(plane_objects.TIMER_EVENT_ID, 0)
         pygame.time.set_timer(plane_objects.TIMER_EVENT_ID + 1, 0)
